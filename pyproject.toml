@@ -1,0 +1,59 @@
+[project]
+name = "secure-by-design-agentic"
+version = "0.1.0"
+description = "Educational project: build, secure, and red-team an AI agent with MCP tools"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [
+    { name = "Joseph Manzambi", email = "joseph@manzambi.com" },
+]
+keywords = ["ai-security", "red-team", "mcp", "owasp", "nist", "csa", "llm-security"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Education",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+dependencies = [
+    # MCP Server
+    "mcp[cli]>=1.0.0",
+    "fastmcp>=0.1.0",
+    # Ollama SDK (thin client for local inference)
+    "ollama>=0.4.0",
+    # Logging & output
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+# Red-team dependencies are separate — you only need them for Phase 3
+redteam = [
+    "pyrit>=0.5.0",
+    "garak>=0.9.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/josephManzambi/Secure-By-Design-Agentic"
+Documentation = "https://github.com/josephManzambi/Secure-By-Design-Agentic/tree/main/docs"
+Repository = "https://github.com/josephManzambi/Secure-By-Design-Agentic"
+Issues = "https://github.com/josephManzambi/Secure-By-Design-Agentic/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "S", "B", "UP"]
+# S = bandit security checks — important for this project

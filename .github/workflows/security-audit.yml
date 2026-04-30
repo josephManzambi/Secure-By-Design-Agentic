@@ -1,0 +1,81 @@
+# ==================================================================
+# Secure-By-Design-Agentic — CI Security Audit
+# ==================================================================
+# Runs the red-team pipeline on every push to main and on PRs.
+# This is a reference implementation — adapt timeouts and layers
+# for your CI budget.
+#
+# The orchestrator exits 0 on INFO/WARN/MEDIUM findings and 1 on
+# HIGH/CRITICAL, so the step will fail if critical issues are found.
+# ==================================================================
+
+name: Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Manual trigger for on-demand auditing
+  workflow_dispatch:
+    inputs:
+      layers:
+        description: 'Layers to run (e.g., "1,2,3")'
+        required: false
+        default: '1,2,3'
+
+jobs:
+  red-team-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # Hard ceiling for the entire job
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          sleep 5
+          ollama pull qwen2.5:7b
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Download orchestrator
+        run: |
+          curl -fsSL -o redteam_orchestrator.py \
+            https://raw.githubusercontent.com/josephManzambi/ai-redteam-orchestrator/main/redteam_orchestrator.py
+
+      - name: Run red-team audit
+        run: |
+          uv run redteam_orchestrator.py \
+            --mcp-config redteam/mcp_client_config.json \
+            --layers ${{ github.event.inputs.layers || '1,2,3' }} \
+            --timeout 3600 \
+            --html
+        # Step fails on HIGH/CRITICAL findings — full report is still uploaded
+
+      - name: Upload reports
+        if: always()  # Upload even if the audit step failed
+        uses: actions/upload-artifact@v4
+        with:
+          name: red-team-reports
+          path: |
+            RedTeam_Report.md
+            RedTeam_Report.html
+            audit.jsonl
+            mcp_server_audit.jsonl
+          retention-days: 30
