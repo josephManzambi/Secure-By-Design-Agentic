@@ -1,0 +1,100 @@
+# ==================================================================
+# Secure-By-Design-Agentic — v1 CI
+# ==================================================================
+# v1 CI runs:
+#   - Ruff (lint + bandit-style security checks via the S ruleset)
+#   - Module import smoke test (verifies the project can be loaded)
+#   - mcp-scan against the MCP server (static analysis, fast)
+#
+# v2 will add the full red-team orchestrator pipeline once the
+# orchestrator produces consistent results.
+# ==================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint + security checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies (with dev extras)
+        run: uv sync --all-extras
+
+      - name: Run Ruff
+        # The pyproject.toml enables the S (bandit) ruleset, so this
+        # catches subprocess(shell=True), hardcoded passwords, etc.
+        run: uv run ruff check .
+
+  import-smoke-test:
+    name: Module import smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Verify modules import cleanly
+        run: |
+          uv run python -c "from agent import config, input_guard, output_filter, tool_authorizer, audit_logger"
+          uv run python -c "from mcp_server import validators, rate_limiter, audit"
+          # Server import without execution
+          uv run python -c "from mcp_server.server import read_log, system_info, search_logs, health_check"
+
+  mcp-scan:
+    name: MCP static analysis (mcp-scan)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.11
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run mcp-scan against the secure MCP server
+        run: |
+          npx -y mcp-scan@latest scan \
+            -c redteam-v2-preview/mcp_client_config.json \
+            --json | tee mcp_scan_results.json
+        # mcp-scan exits non-zero on findings — for v1 we don't fail CI on this
+        # because we want to inspect the output. v2 will gate on findings.
+        continue-on-error: true
+
+      - name: Upload mcp-scan results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-scan-results
+          path: mcp_scan_results.json
+          retention-days: 30
