@@ -231,8 +231,7 @@ Secure-By-Design-Agentic/
 │   ├── ARCHITECTURE.md                # Architecture decision log
 │   ├── FRAMEWORK_ALIGNMENT.md         # Full OWASP/NIST/CSA mapping
 │   ├── THREAT_MODEL.md                # STRIDE threat model
-│   ├── MANUAL_REDTEAM.md              # v1 manual validation suite
-│   └── CONTENT_PLAN.md                # Three-article series plan
+│   └── MANUAL_REDTEAM.md              # v1 manual validation suite
 │
 └── .github/
     └── workflows/
@@ -346,14 +345,12 @@ audit log entry that should appear.
 - [x] Threat model + framework alignment docs
 - [x] Manual red-team validation suite
 - [x] CI: lint + import smoke test + mcp-scan
-- [ ] **Article 1** — "Building a Secure-By-Design AI Agent with MCP Tools"
 
 ### Between v1 and v2 — Stabilizing the Orchestrator
 - [ ] Resolve PyRIT version-pinning issues in
       [ai-redteam-orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator)
 - [ ] Verify three consecutive runs produce consistent severity classifications
 - [ ] Document failure modes encountered during stabilization
-- [ ] **Article 2** — "What I Learned Debugging an AI Red-Team Orchestrator"
 
 ### v2 — Full Automated Red-Team Integration
 - [ ] Wire the orchestrator into the project (move `redteam-v2-preview/` → `redteam/`)
@@ -361,7 +358,6 @@ audit log entry that should appear.
       mcp-scan, Layer 3 PyRIT adversarial)
 - [ ] Run the full pipeline against the secure agent + MCP server
 - [ ] Commit the resulting report to `docs/RESULTS.md` for transparency
-- [ ] **Article 3** — "Red-Teaming My Own Agent: Results from the Full Pipeline"
 
 ### Future considerations
 - [ ] Add a deliberately vulnerable MCP server alongside the secure one for
@@ -369,9 +365,6 @@ audit log entry that should appear.
 - [ ] SBOM generation (OWASP LLM03 — Supply Chain)
 - [ ] Compare results across different Ollama models
 - [ ] Container isolation example (production-grade deployment)
-
-See [`docs/CONTENT_PLAN.md`](docs/CONTENT_PLAN.md) for the full three-article
-content series plan.
 
 ---
 
