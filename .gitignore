@@ -44,3 +44,6 @@ mcp_scan_client.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Personal working notes (not for public repo)
+docs/CONTENT_PLAN.md
