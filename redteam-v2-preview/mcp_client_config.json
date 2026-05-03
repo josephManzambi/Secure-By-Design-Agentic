@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "secure-system-tools": {
-      "command": "python",
-      "args": ["-m", "mcp_server.server"]
+      "command": "uv",
+      "args": ["run", "python", "-m", "mcp_server.server"]
     }
   }
 }
