@@ -9,8 +9,7 @@ Framework alignment:
         "Prompt injection vulnerabilities are possible due to the nature of
         generative AI. Given the stochastic influence at the heart of the way
         models work, it is unclear if there are fool-proof methods of
-        prevention for prompt injection. However, the following measures can
-        mitigate the impact."
+        prevention for prompt injection."
         — OWASP Top 10 for LLMs 2025
 
         This module implements:
