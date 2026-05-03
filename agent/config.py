@@ -21,7 +21,7 @@ Framework alignment:
         Credentials and access tokens must never appear in model context.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)

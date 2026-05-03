@@ -40,13 +40,13 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
-from agent.config import AgentConfig, DEFAULT_CONFIG
+from agent.config import DEFAULT_CONFIG, AgentConfig
 
 
-class AuthDecision(str, Enum):
+class AuthDecision(StrEnum):
     """Authorization decision for a tool call."""
 
     ALLOWED = "allowed"              # Tool call is safe, execute immediately

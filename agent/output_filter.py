@@ -37,7 +37,7 @@ DESIGN DECISION:
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
@@ -99,7 +99,10 @@ _SENSITIVE_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
     ),
     # Generic API keys/tokens (common patterns)
     (
-        re.compile(r"\b(?:api[_-]?key|api[_-]?token|bearer)\s*[=:]\s*['\"]?[\w\-\.]{20,}['\"]?", re.IGNORECASE),
+        re.compile(
+            r"\b(?:api[_-]?key|api[_-]?token|bearer)\s*[=:]\s*['\"]?[\w\-\.]{20,}['\"]?",
+            re.IGNORECASE,
+        ),
         "API key/token",
         "[REDACTED: API credential]",
     ),
