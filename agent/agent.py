@@ -38,7 +38,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-from agent.audit_logger import AuditLogger
+from agent.audit_logger import AuditLogger, EventType
 from agent.config import AgentConfig, DEFAULT_CONFIG
 from agent.input_guard import RiskLevel, validate_input
 from agent.output_filter import filter_output
@@ -293,16 +293,7 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
                     prompt = format_confirmation_prompt(auth_result)
                     if not _request_human_confirmation(prompt):
                         console.print("[yellow]Tool call rejected by user.[/yellow]")
-                        logger.log(
-                            logger.log_tool_authorized.__wrapped__
-                            if hasattr(logger.log_tool_authorized, "__wrapped__")
-                            else "tool_call_rejected",  # type: ignore
-                            {"tool_name": tool_name},
-                        ) if False else logger.log(
-                            # Simplified: just log rejection
-                            type("", (), {"value": "tool_call_rejected"})(),  # type: ignore
-                            {"tool_name": tool_name, "decision": "rejected_by_user"},
-                        ) if False else None
+                        logger.log(EventType.TOOL_CALL_REJECTED, {"tool_name": tool_name})
                         messages.append(response.message)
                         messages.append({
                             "role": "tool",
@@ -367,7 +358,7 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
 
     # --- Session end ---
     logger.close()
-    console.print("\n[dim]Session ended. Audit log saved to {config.audit_log_file}[/dim]")
+    console.print(f"\n[dim]Session ended. Audit log saved to {config.audit_log_file}[/dim]")
 
 
 if __name__ == "__main__":
