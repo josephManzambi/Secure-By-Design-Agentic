@@ -36,9 +36,8 @@ from __future__ import annotations
 
 import datetime
 import json
-import sys
 from dataclasses import asdict, dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -47,7 +46,7 @@ from rich.console import Console
 console = Console(stderr=True)
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Categories of auditable events."""
 
     INPUT_VALIDATION = "input_validation"
@@ -103,10 +102,10 @@ class AuditLogger:
     @staticmethod
     def _generate_session_id() -> str:
         """Generate a unique session ID based on timestamp."""
-        return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        return datetime.datetime.now(datetime.UTC).strftime("%Y%m%dT%H%M%SZ")
 
     def _now(self) -> str:
-        return datetime.datetime.now(datetime.timezone.utc).isoformat()
+        return datetime.datetime.now(datetime.UTC).isoformat()
 
     def log(self, event_type: EventType, details: dict[str, Any]) -> None:
         """
@@ -182,7 +181,11 @@ class AuditLogger:
         safe_args = {k: "***" for k in arguments}
         self.log(
             EventType.TOOL_CALL_REQUESTED,
-            {"tool_name": tool_name, "argument_keys": list(arguments.keys()), "arguments_redacted": safe_args},
+            {
+                "tool_name": tool_name,
+                "argument_keys": list(arguments.keys()),
+                "arguments_redacted": safe_args,
+            },
         )
 
     def log_tool_authorized(self, tool_name: str, decision: str, reason: str) -> None:

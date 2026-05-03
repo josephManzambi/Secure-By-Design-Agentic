@@ -30,16 +30,14 @@ Usage:
 from __future__ import annotations
 
 import json
-import sys
 import time
 from typing import Any
 
 from rich.console import Console
 from rich.panel import Panel
-from rich.markdown import Markdown
 
-from agent.audit_logger import AuditLogger
-from agent.config import AgentConfig, DEFAULT_CONFIG
+from agent.audit_logger import AuditLogger, EventType
+from agent.config import DEFAULT_CONFIG, AgentConfig
 from agent.input_guard import RiskLevel, validate_input
 from agent.output_filter import filter_output
 from agent.tool_authorizer import (
@@ -65,7 +63,10 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "read_log",
-            "description": "Read the contents of a log file from the log directory. Only filenames are accepted (no paths).",
+            "description": (
+                "Read the contents of a log file from the log directory. "
+                "Only filenames are accepted (no paths)."
+            ),
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -82,7 +83,10 @@ TOOL_DEFINITIONS = [
         "type": "function",
         "function": {
             "name": "system_info",
-            "description": "Get current system information including hostname, OS, and uptime. Takes no parameters.",
+            "description": (
+                "Get current system information including hostname, OS, and uptime. "
+                "Takes no parameters."
+            ),
             "parameters": {"type": "object", "properties": {}},
         },
     },
@@ -130,7 +134,7 @@ def _execute_tool(tool_name: str, arguments: dict[str, Any]) -> str:
     this function is only called after authorization passes.
     """
     try:
-        from mcp_server.server import read_log, system_info, search_logs, health_check
+        from mcp_server.server import health_check, read_log, search_logs, system_info
 
         tool_map = {
             "read_log": read_log,
@@ -284,7 +288,10 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
                     messages.append(response.message)
                     messages.append({
                         "role": "tool",
-                        "content": f"DENIED: {auth_result.reason}. Violations: {auth_result.violations}",
+                        "content": (
+                            f"DENIED: {auth_result.reason}. "
+                            f"Violations: {auth_result.violations}"
+                        ),
                     })
                     break
 
@@ -293,16 +300,7 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
                     prompt = format_confirmation_prompt(auth_result)
                     if not _request_human_confirmation(prompt):
                         console.print("[yellow]Tool call rejected by user.[/yellow]")
-                        logger.log(
-                            logger.log_tool_authorized.__wrapped__
-                            if hasattr(logger.log_tool_authorized, "__wrapped__")
-                            else "tool_call_rejected",  # type: ignore
-                            {"tool_name": tool_name},
-                        ) if False else logger.log(
-                            # Simplified: just log rejection
-                            type("", (), {"value": "tool_call_rejected"})(),  # type: ignore
-                            {"tool_name": tool_name, "decision": "rejected_by_user"},
-                        ) if False else None
+                        logger.log(EventType.TOOL_CALL_REJECTED, {"tool_name": tool_name})
                         messages.append(response.message)
                         messages.append({
                             "role": "tool",
@@ -344,7 +342,8 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
                     break
             else:
                 console.print(
-                    f"\n[yellow]⚠️  Max tool calls per turn reached ({config.max_tool_calls_per_turn})[/yellow]"
+                    "\n[yellow]⚠️  Max tool calls per turn reached "
+                    f"({config.max_tool_calls_per_turn})[/yellow]"
                 )
                 break
 
@@ -355,7 +354,8 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
 
         if filter_result.was_modified:
             console.print(
-                f"\n[yellow]⚠️  Output filtered: {len(filter_result.redactions)} redaction(s)[/yellow]",
+                f"\n[yellow]⚠️  Output filtered: "
+                f"{len(filter_result.redactions)} redaction(s)[/yellow]",
                 highlight=False,
             )
 
@@ -367,7 +367,7 @@ def run_agent(config: AgentConfig = DEFAULT_CONFIG) -> None:
 
     # --- Session end ---
     logger.close()
-    console.print("\n[dim]Session ended. Audit log saved to {config.audit_log_file}[/dim]")
+    console.print(f"\n[dim]Session ended. Audit log saved to {config.audit_log_file}[/dim]")
 
 
 if __name__ == "__main__":

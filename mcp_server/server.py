@@ -46,17 +46,15 @@ from __future__ import annotations
 import os
 import platform
 import subprocess
-import time
-from pathlib import Path
 
 from mcp_server.audit import ServerAuditLog
-from mcp_server.rate_limiter import RateLimiter, create_default_limiter
+from mcp_server.rate_limiter import create_default_limiter
 from mcp_server.validators import (
     LOG_DIRECTORY,
     MAX_SEARCH_RESULTS,
     ValidationError,
-    validate_filename,
     validate_file_readable,
+    validate_filename,
     validate_keyword,
 )
 

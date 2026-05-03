@@ -37,7 +37,7 @@ class ServerAuditLog:
     ) -> None:
         """Log a server-side audit event."""
         entry = {
-            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
             "event": event,
             "tool_name": tool_name,
             "parameter_keys": list(parameters.keys()) if parameters else [],
