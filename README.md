@@ -383,7 +383,6 @@ audit log entry that should appear.
 ### Related Projects
 
 - [AI Red Team Orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator) - The red-team pipeline that ships in v2
-- [Lance](https://github.com/josephManzambi/lance) - Advanced AI security testing framework (in development)
 
 ---
 
