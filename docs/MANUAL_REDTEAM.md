@@ -4,9 +4,6 @@ This document records the manual red-team test cases used to validate the
 secure-by-design implementation. It is the project's primary self-test path:
 each defense layer can be exercised by hand without external tooling.
 
-A heavier automated pipeline (PyRIT, Garak, full Promptfoo OWASP preset) is
-out of scope here.
-
 We run three categories of manual tests:
 
 1. **Static analysis of the MCP server** (mcp-scan)
