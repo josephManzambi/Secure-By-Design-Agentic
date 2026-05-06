@@ -143,7 +143,7 @@ to the server-side audit log for the operator, not exposed to the model.
 
 **Rationale:**
 This is the single most impactful security control in the MCP server.
-The vulnerable demo server in the AI Red Team Orchestrator uses:
+A typical vulnerable MCP server uses something like:
 
 ```python
 # VULNERABLE

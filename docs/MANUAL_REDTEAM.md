@@ -1,11 +1,13 @@
-# Manual Red-Team Validation (v1)
+# Manual Red-Team Validation
 
 This document records the manual red-team test cases used to validate the
-secure-by-design implementation in v1. The automated pipeline (PyRIT, Garak,
-full Promptfoo OWASP preset) is reserved for v2 — see
-[`redteam-v2-preview/README.md`](../redteam-v2-preview/README.md) for why.
+secure-by-design implementation. It is the project's primary self-test path:
+each defense layer can be exercised by hand without external tooling.
 
-For v1, we run three categories of manual tests:
+A heavier automated pipeline (PyRIT, Garak, full Promptfoo OWASP preset) is
+out of scope here.
+
+We run three categories of manual tests:
 
 1. **Static analysis of the MCP server** (mcp-scan)
 2. **Direct prompt injection attempts** against the agent
@@ -40,7 +42,7 @@ injection vectors in tool descriptors, unsafe patterns in tool descriptions.
 **Run it:**
 
 ```bash
-npx -y mcp-scan@latest scan -c redteam-v2-preview/mcp_client_config.json --json
+npx -y mcp-scan@latest scan -c mcp-scan/mcp_client_config.json --json
 ```
 
 **Expected result:**
@@ -54,8 +56,10 @@ npx -y mcp-scan@latest scan -c redteam-v2-preview/mcp_client_config.json --json
 - No imperative instructions embedded in descriptions
 - All four tools have explicit, narrow purposes
 
-**Compare with the vulnerable demo** (in the AI Red Team Orchestrator repo)
-to see what mcp-scan flags when descriptions are sloppy.
+For contrast, a deliberately vulnerable MCP server (not included in this
+repo) — one that embeds imperative instructions in tool descriptions, leaks
+secrets in docstrings, or names tools ambiguously — would surface
+HIGH/CRITICAL findings here.
 
 ---
 
@@ -225,7 +229,9 @@ expected entry — if you see it, the layer worked.
 
 ## What This Suite Does NOT Cover
 
-These are deliberately deferred to v2 because they require automated tooling:
+The following are out of scope for the manual suite because they require
+heavier automated tooling. They are good directions for anyone wiring this
+project into a broader pipeline:
 
 - **Multi-turn jailbreak persistence** (PyRIT Crescendo) — requires repeatable
   scoring across many turns
@@ -236,8 +242,6 @@ These are deliberately deferred to v2 because they require automated tooling:
 - **OWASP Top-10 systematic coverage** (Promptfoo redteam preset) — requires
   the full plugin bundle
 
-Those are the value-add of v2 once the orchestrator is reliable.
-
 ---
 
 ## Recording Results
@@ -247,6 +251,5 @@ When running this suite, capture:
 2. Which test cases revealed gaps (interesting findings)
 3. Any unexpected behavior that warrants investigation
 
-For the v1 article, the most compelling content comes from cases where the
-defense worked **and** cases where you discovered something. Both are honest
-data.
+The most useful results come from cases where the defense worked **and**
+cases where you discovered something. Both are honest data.

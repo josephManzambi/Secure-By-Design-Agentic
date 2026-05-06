@@ -1,13 +1,10 @@
 # ==================================================================
-# Secure-By-Design-Agentic — v1 CI
+# Secure-By-Design-Agentic — CI
 # ==================================================================
-# v1 CI runs:
+# CI runs:
 #   - Ruff (lint + bandit-style security checks via the S ruleset)
 #   - Module import smoke test (verifies the project can be loaded)
 #   - mcp-scan against the MCP server (static analysis, fast)
-#
-# v2 will add the full red-team orchestrator pipeline once the
-# orchestrator produces consistent results.
 # ==================================================================
 
 name: CI
@@ -85,10 +82,10 @@ jobs:
       - name: Run mcp-scan against the secure MCP server
         run: |
           npx -y mcp-scan@latest scan \
-            -c redteam-v2-preview/mcp_client_config.json \
+            -c mcp-scan/mcp_client_config.json \
             --json | tee mcp_scan_results.json
-        # mcp-scan exits non-zero on findings — for v1 we don't fail CI on this
-        # because we want to inspect the output. v2 will gate on findings.
+        # mcp-scan exits non-zero on findings — we don't fail CI on this
+        # because we want to inspect the output rather than gate on it.
         continue-on-error: true
 
       - name: Upload mcp-scan results

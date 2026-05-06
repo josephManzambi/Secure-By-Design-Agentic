@@ -1,10 +1,8 @@
 # 🏗️ Secure-By-Design-Agentic
 
-**An educational, open-source project demonstrating how to build a secure
-AI agent with MCP tool integration - aligned with OWASP, NIST, and CSA frameworks.**
-
-> **Status:** v1 - secure agent + secure MCP server + manual red-team validation.
-> Automated red-team integration ships in v2 ([roadmap below](#roadmap)).
+**An educational, open-source reference implementation of a secure AI agent
+with MCP tool integration — with every architectural decision mapped to
+OWASP, NIST, and CSA prescriptions.**
 
 > **Purpose:** This project exists to teach. Every architectural decision is
 > documented with *why* it was made and *which framework prescription* it
@@ -15,7 +13,7 @@ AI agent with MCP tool integration - aligned with OWASP, NIST, and CSA framework
 
 ## Table of Contents
 
-- [What's in v1](#whats-in-v1)
+- [What's Here](#whats-here)
 - [Why This Project Exists](#why-this-project-exists)
 - [Architecture Overview](#architecture-overview)
 - [Framework Alignment](#framework-alignment)
@@ -23,37 +21,34 @@ AI agent with MCP tool integration - aligned with OWASP, NIST, and CSA framework
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
-- [The Two Phases (in v1)](#the-two-phases-in-v1)
+- [The Two Components](#the-two-components)
 - [Manual Red-Team Validation](#manual-red-team-validation)
-- [Roadmap](#roadmap)
+- [Future Directions](#future-directions)
 - [Educational Resources](#educational-resources)
 - [Contributing](#contributing)
 - [License](#license)
 
 ---
 
-## What's in v1
+## What's Here
 
-✅ **Phase 1 - A secure agent**
+✅ **A secure agent**
 Defense-in-depth architecture with input validation, tool authorization,
 output filtering, and structured audit logging. Built without an agent
 framework so every security boundary is visible.
 
-✅ **Phase 2 - A secure MCP server**
+✅ **A secure MCP server**
 Hardened FastMCP server with four read-only tools demonstrating path
 canonicalization, argument-list subprocess invocation, rate limiting, and
 generic error messages.
 
-✅ **Manual red-team validation**
+✅ **Manual red-team validation suite**
 Test cases from OWASP LLM01, LLM02, LLM05, LLM06, and LLM10 that you can run
 by hand to verify each defense layer. See [`docs/MANUAL_REDTEAM.md`](docs/MANUAL_REDTEAM.md).
+This is the project's primary self-test path.
 
 ✅ **Static analysis with mcp-scan**
-The most stable component of the red-team toolchain runs in CI on every push.
-
-🛠️ **Coming in v2** - full automated red-team pipeline using
-[AI Red Team Orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator)
-once that project produces consistent results across runs.
+Runs in CI on every push.
 
 ---
 
@@ -73,8 +68,8 @@ enormous. This project bridges it by:
    and defense-in-depth from day one
 2. Building a **secure MCP server** demonstrating mitigations against the real
    vulnerabilities found in production MCP deployments
-3. Providing a **manual red-team checklist** (v1) that becomes an **automated
-   pipeline** (v2) once the upstream tooling stabilizes
+3. Providing a **manual red-team checklist** so each defense layer can be
+   exercised and verified locally without external tooling
 
 Each component is annotated with the specific OWASP, NIST, or CSA control it
 implements.
@@ -167,7 +162,7 @@ Each technology was selected for a specific reason. See
 
 | Technology | Why |
 |---|---|
-| **Python 3.11+** | Primary language for all major red-team frameworks (PyRIT, Garak, Promptfoo plugins). Keeps the v2 pipeline in one ecosystem. |
+| **Python 3.11+** | Primary language for the major red-team frameworks (PyRIT, Garak, Promptfoo plugins), so any future adversarial testing stays in one ecosystem. |
 | **Ollama** | Fully local inference - no API keys, no data exfiltration risk, no vendor lock-in. Essential for security testing where you control the full stack. |
 | **qwen2.5:7b** | Open-weight model (Apache 2.0), fits on consumer hardware (8GB VRAM). Large enough for realistic agent behavior, small enough for rapid iteration. |
 | **uv** | Deterministic dependency resolution with lockfiles. Critical for reproducible security testing. |
@@ -192,7 +187,7 @@ Each technology was selected for a specific reason. See
 | Omission | Rationale |
 |---|---|
 | **LangChain / LlamaIndex** | Hides the agent loop behind abstractions. For security education, every decision point must be inspectable. |
-| **API-based models (OpenAI, Anthropic)** | Can't fully red-team what you don't control. Local inference is required for reproducible adversarial testing in v2. |
+| **API-based models (OpenAI, Anthropic)** | Can't fully red-team what you don't control. Local inference is required for reproducible adversarial testing. |
 | **Docker (for the agent)** | Adds a layer that obscures the security boundaries. Process-level isolation is what we're teaching. Docker is fine for deployment; it's wrong for learning. |
 
 ---
@@ -206,7 +201,7 @@ Secure-By-Design-Agentic/
 ├── LICENSE                            # MIT
 ├── pyproject.toml                     # Project metadata + dependencies
 │
-├── agent/                             # Phase 1 - The Secure Agent
+├── agent/                             # The Secure Agent
 │   ├── __init__.py
 │   ├── agent.py                       # Main agent loop
 │   ├── input_guard.py                 # Input validation & sanitization
@@ -215,27 +210,26 @@ Secure-By-Design-Agentic/
 │   ├── audit_logger.py                # Structured audit logging
 │   └── config.py                      # Agent configuration (no secrets)
 │
-├── mcp_server/                        # Phase 2 - The Secure MCP Server
+├── mcp_server/                        # The Secure MCP Server
 │   ├── __init__.py
 │   ├── server.py                      # FastMCP server with hardened tools
 │   ├── validators.py                  # Input validation utilities
 │   ├── rate_limiter.py                # Token-bucket rate limiter
 │   └── audit.py                       # Server-side audit logging
 │
-├── redteam-v2-preview/                # ⚠️  Scaffolding for v2 - NOT used in v1
-│   ├── README.md                      # Explains the v2 status
-│   ├── mcp_client_config.json         # Used by mcp-scan in CI
-│   └── run_redteam.sh                 # Wrapper for the orchestrator (v2)
+├── mcp-scan/                          # mcp-scan target descriptor
+│   ├── README.md
+│   └── mcp_client_config.json         # Used by mcp-scan in CI
 │
 ├── docs/                              # Educational documentation
 │   ├── ARCHITECTURE.md                # Architecture decision log
 │   ├── FRAMEWORK_ALIGNMENT.md         # Full OWASP/NIST/CSA mapping
 │   ├── THREAT_MODEL.md                # STRIDE threat model
-│   └── MANUAL_REDTEAM.md              # v1 manual validation suite
+│   └── MANUAL_REDTEAM.md              # Manual validation suite
 │
 └── .github/
     └── workflows/
-        └── ci.yml                     # v1 CI: lint + import smoke test + mcp-scan
+        └── ci.yml                     # CI: lint + import smoke test + mcp-scan
 ```
 
 ---
@@ -274,14 +268,14 @@ uv run python -m agent.agent
 uv run python -m mcp_server.server
 
 # --- Run mcp-scan against the MCP server ---
-npx -y mcp-scan@latest scan -c redteam-v2-preview/mcp_client_config.json --json
+npx -y mcp-scan@latest scan -c mcp-scan/mcp_client_config.json --json
 ```
 
 ---
 
-## The Two Phases (in v1)
+## The Two Components
 
-### Phase 1 - The Secure Agent
+### The Secure Agent
 
 The agent implements a **defense-in-depth** architecture with four security layers:
 
@@ -302,7 +296,7 @@ The agent implements a **defense-in-depth** architecture with four security laye
 4. **Output Filter** - Scans LLM responses for sensitive patterns (file paths,
    credentials, PII) before display. *(OWASP LLM02, LLM05)*
 
-### Phase 2 - The Secure MCP Server
+### The Secure MCP Server
 
 The MCP server exposes four tools, each demonstrating a different security
 pattern:
@@ -321,9 +315,11 @@ pattern:
 
 ## Manual Red-Team Validation
 
-v1 ships with a manual test suite covering OWASP LLM01, LLM02, LLM05, LLM06,
-and LLM10. The full suite - with expected behavior, audit log entries, and
-explanations - lives in [`docs/MANUAL_REDTEAM.md`](docs/MANUAL_REDTEAM.md).
+The project ships with a manual test suite covering OWASP LLM01, LLM02,
+LLM05, LLM06, and LLM10. The full suite — with expected behavior, audit log
+entries, and explanations — lives in
+[`docs/MANUAL_REDTEAM.md`](docs/MANUAL_REDTEAM.md). Running it locally is the
+recommended way to validate the defenses.
 
 Three categories:
 
@@ -337,34 +333,20 @@ audit log entry that should appear.
 
 ---
 
-## Roadmap
+## Future Directions
 
-### v1 (current) - Secure Foundation
-- [x] Secure agent with four-layer defense-in-depth
-- [x] Hardened MCP server with four tools
-- [x] Threat model + framework alignment docs
-- [x] Manual red-team validation suite
-- [x] CI: lint + import smoke test + mcp-scan
+This project is a complete reference implementation of the controls listed
+above. Areas worth exploring on top of it:
 
-### Between v1 and v2 - Stabilizing the Orchestrator
-- [ ] Resolve PyRIT version-pinning issues in
-      [ai-redteam-orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator)
-- [ ] Verify three consecutive runs produce consistent severity classifications
-- [ ] Document failure modes encountered during stabilization
-
-### v2 - Full Automated Red-Team Integration
-- [ ] Wire the orchestrator into the project (move `redteam-v2-preview/` → `redteam/`)
-- [ ] Add the three-layer pipeline to CI (Layer 1 broad scan, Layer 2 OWASP +
-      mcp-scan, Layer 3 PyRIT adversarial)
-- [ ] Run the full pipeline against the secure agent + MCP server
-- [ ] Commit the resulting report to `docs/RESULTS.md` for transparency
-
-### Future considerations
-- [ ] Add a deliberately vulnerable MCP server alongside the secure one for
-      side-by-side teaching
-- [ ] SBOM generation (OWASP LLM03 - Supply Chain)
-- [ ] Compare results across different Ollama models
-- [ ] Container isolation example (production-grade deployment)
+- Deeper red-teaming integration (PyRIT / Garak / Promptfoo) once a chosen
+  pipeline produces consistent severity classifications across runs
+- A side-by-side deliberately vulnerable MCP server for contrast teaching
+- Operationalizing EU AI Act / NIST AI 100-1 governance controls on top of
+  the technical baseline
+- Multi-tool capability flow analysis (which tool combinations escalate
+  privilege or exfiltrate data)
+- SBOM generation for the agent + MCP dependency tree (OWASP LLM03)
+- Container isolation example for production-grade deployment
 
 ---
 
@@ -379,10 +361,6 @@ audit log entry that should appear.
 - [NIST AI 600-1 - Generative AI Profile](https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf)
 - [CSA AI Controls Matrix (AICM)](https://cloudsecurityalliance.org/artifacts/ai-controls-matrix)
 - [CSA Agentic AI Security Scoping Matrix](https://cloudsecurityalliance.org/blog/2025/12/16/enhancing-the-agentic-ai-security-scoping-matrix-a-multi-dimensional-approach)
-
-### Related Projects
-
-- [AI Red Team Orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator) - The red-team pipeline that ships in v2
 
 ---
 

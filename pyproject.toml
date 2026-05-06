@@ -1,7 +1,7 @@
 [project]
 name = "secure-by-design-agentic"
 version = "0.1.0"
-description = "Educational project: build, secure, and red-team an AI agent with MCP tools"
+description = "Reference implementation of a secure-by-design AI agent and MCP server, mapped to OWASP, NIST, and CSA controls"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
@@ -29,11 +29,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Red-team dependencies are separate — you only need them for Phase 3
-redteam = [
-    "pyrit>=0.5.0",
-    "garak>=0.9.0",
-]
 dev = [
     "pytest>=8.0.0",
     "ruff>=0.4.0",

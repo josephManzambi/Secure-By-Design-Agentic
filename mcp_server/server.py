@@ -2,8 +2,8 @@
 Secure MCP Server
 ==================
 A hardened MCP server with four tools demonstrating secure design patterns.
-This is the OPPOSITE of the vulnerable demo server in the AI Red Team
-Orchestrator — every vulnerability there is mitigated here.
+The table below contrasts a typical vulnerable MCP server with this one;
+every vulnerability listed on the left is mitigated on the right.
 
 Vulnerability Comparison:
     ┌─────────────────────┬──────────────────────────┬──────────────────────────┐
