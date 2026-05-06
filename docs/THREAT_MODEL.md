@@ -69,18 +69,22 @@ reading, system info, log searching, and health checking.
 | LLM escalates from read-only to command exec | HIGH | CRITICAL | No command execution tools exposed; search uses grep with shell=False |
 | Multi-turn jailbreak bypasses refusal | HIGH | HIGH | Tool authorizer is stateless — each call re-validated independently |
 
-## Attack Scenarios Tested by Red Team
+## Attack Scenarios Considered
 
-| Scenario | Layer | Framework |
+| Scenario | Layer | Coverage |
 |---|---|---|
-| Direct prompt injection ("ignore previous instructions") | 1 | Garak, Promptfoo |
-| Encoding-based evasion (base64, leetspeak, multilingual) | 1, 2 | Promptfoo OWASP preset |
-| Path traversal via read_log ("../../etc/passwd") | 2 | Promptfoo eval, mcp-scan |
-| Command injection via search_logs ("; cat /etc/shadow") | 2 | Promptfoo eval, mcp-scan |
-| System prompt extraction | 1, 2 | Garak, Promptfoo |
-| Gradual escalation over multiple turns | 3 | PyRIT Crescendo |
-| Branching jailbreak search | 3 | PyRIT TAP |
-| Tool poisoning via descriptions | 2 | mcp-scan |
+| Direct prompt injection ("ignore previous instructions") | 1 | Manual suite — Test 2a |
+| Delimiter injection (fake `<system>` tags) | 1 | Manual suite — Test 2b |
+| Base64-encoded injection | 1 | Manual suite — Test 2c |
+| Indirect injection via poisoned log content | 1, 2 | Manual suite — Test 2d |
+| Path traversal via `read_log` ("../../etc/passwd") | 2 | Manual suite — Tests 3a, 3b + mcp-scan |
+| Command injection via `search_logs` ("; cat /etc/shadow") | 2 | Manual suite — Test 3c + mcp-scan |
+| Unauthorized / hallucinated tool calls | 2 | Manual suite — Tests 3d, 3e |
+| Sensitive output disclosure (passwd entries, API keys) | 3 | Manual suite — Tests 4a, 4b |
+| Tool poisoning via descriptions | 2 | mcp-scan in CI |
+| Gradual escalation over many turns (Crescendo-style) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |
+| Branching adversarial search (TAP-style) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |
+| Broad encoding-evasion sweeps (leetspeak, multilingual, etc.) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |
 
 ## Residual Risks
 
