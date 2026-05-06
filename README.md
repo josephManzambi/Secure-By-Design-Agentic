@@ -333,23 +333,6 @@ audit log entry that should appear.
 
 ---
 
-## Future Directions
-
-This project is a complete reference implementation of the controls listed
-above. Areas worth exploring on top of it:
-
-- Deeper red-teaming integration (PyRIT / Garak / Promptfoo) once a chosen
-  pipeline produces consistent severity classifications across runs
-- A side-by-side deliberately vulnerable MCP server for contrast teaching
-- Operationalizing EU AI Act / NIST AI 100-1 governance controls on top of
-  the technical baseline
-- Multi-tool capability flow analysis (which tool combinations escalate
-  privilege or exfiltrate data)
-- SBOM generation for the agent + MCP dependency tree (OWASP LLM03)
-- Container isolation example for production-grade deployment
-
----
-
 ## Educational Resources
 
 ### Frameworks Referenced
