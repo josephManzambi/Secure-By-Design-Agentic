@@ -23,6 +23,7 @@ garak.log
 garak_report*
 promptfoo_output*
 redteam-output*
+mcp_descriptor_scan.json
 .promptfoo/
 
 # PyRIT state

@@ -6,7 +6,7 @@ each defense layer can be exercised by hand without external tooling.
 
 We run three categories of manual tests:
 
-1. **Static analysis of the MCP server** (mcp-scan)
+1. **Static analysis of the MCP server** (MCP descriptor scan)
 2. **Direct prompt injection attempts** against the agent
 3. **Tool-layer attack attempts** that should be blocked by the authorizer
 
@@ -31,32 +31,30 @@ ls -la /var/log/syslog  # Verify a sample log file exists
 
 ---
 
-## Test 1 — Static Analysis (mcp-scan)
+## Test 1 — Static Analysis (MCP descriptor scan)
 
-**What it tests:** OWASP MCP Security Guide §3 — tool poisoning, prompt
-injection vectors in tool descriptors, unsafe patterns in tool descriptions.
+**What it tests:** OWASP MCP Security Guide §3, tool poisoning. The scan starts the server,
+reads its tool descriptions from `tools/list`, and checks them for hidden instructions,
+references to secret files, invisible Unicode, secret-shaped tokens, and execution wording.
 
-**Run it:**
-
-```bash
-npx -y mcp-scan@latest scan -c mcp-scan/mcp_client_config.json --json
-```
+**Run it:** the commands in [`../mcp-scan/README.md`](../mcp-scan/README.md#running-it-locally).
 
 **Expected result:**
-- Zero CRITICAL findings
-- Zero HIGH findings related to tool descriptions
-- Server descriptor parses cleanly
+- One server, four tools listed
+- Zero findings (zero CRITICAL and zero HIGH is what CI gates on)
 
 **Why this passes:**
-- Tool descriptions are minimal and factual (`mcp_server/server.py` lines 308-321)
+- Tool descriptions are minimal and factual (`create_mcp_server()` in `mcp_server/server.py`)
 - No secrets in any docstring
 - No imperative instructions embedded in descriptions
 - All four tools have explicit, narrow purposes
 
-For contrast, a deliberately vulnerable MCP server (not included in this
-repo) — one that embeds imperative instructions in tool descriptions, leaks
-secrets in docstrings, or names tools ambiguously — would surface
-HIGH/CRITICAL findings here.
+For contrast, the deliberately vulnerable demo server in
+[ai-redteam-orchestrator](https://github.com/josephManzambi/ai-redteam-orchestrator)
+(`--demo-vulnerable-server`) produces two HIGH findings on its poisoned `summarize_note` tool.
+The same scan finds nothing on its other two planted flaws, path traversal in `read_log` and
+command injection in `system_diagnostics`, because their descriptions say nothing suspicious.
+That is the limit of a descriptor scan: it reads what a tool says, not what it does.
 
 ---
 
