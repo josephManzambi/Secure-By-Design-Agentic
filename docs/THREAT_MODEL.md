@@ -77,11 +77,11 @@ reading, system info, log searching, and health checking.
 | Delimiter injection (fake `<system>` tags) | 1 | Manual suite — Test 2b |
 | Base64-encoded injection | 1 | Manual suite — Test 2c |
 | Indirect injection via poisoned log content | 1, 2 | Manual suite — Test 2d |
-| Path traversal via `read_log` ("../../etc/passwd") | 2 | Manual suite — Tests 3a, 3b + mcp-scan |
-| Command injection via `search_logs` ("; cat /etc/shadow") | 2 | Manual suite — Test 3c + mcp-scan |
+| Path traversal via `read_log` ("../../etc/passwd") | 2 | Manual suite — Tests 3a, 3b |
+| Command injection via `search_logs` ("; cat /etc/shadow") | 2 | Manual suite — Test 3c |
 | Unauthorized / hallucinated tool calls | 2 | Manual suite — Tests 3d, 3e |
 | Sensitive output disclosure (passwd entries, API keys) | 3 | Manual suite — Tests 4a, 4b |
-| Tool poisoning via descriptions | 2 | mcp-scan in CI |
+| Tool poisoning via descriptions | 2 | MCP descriptor scan in CI (keyword checks) |
 | Gradual escalation over many turns (Crescendo-style) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |
 | Branching adversarial search (TAP-style) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |
 | Broad encoding-evasion sweeps (leetspeak, multilingual, etc.) | — | Out of scope — see [MANUAL_REDTEAM.md](MANUAL_REDTEAM.md) |

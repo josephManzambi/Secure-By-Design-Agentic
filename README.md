@@ -47,8 +47,9 @@ Test cases from OWASP LLM01, LLM02, LLM05, LLM06, and LLM10 that you can run
 by hand to verify each defense layer. See [`docs/MANUAL_REDTEAM.md`](docs/MANUAL_REDTEAM.md).
 This is the project's primary self-test path.
 
-✅ **Static analysis with mcp-scan**
-Runs in CI on every push.
+✅ **MCP descriptor scan in CI**
+Starts the secure server, reads its tool descriptions, and fails the build on any HIGH or CRITICAL
+finding. Keyword checks only; see [`mcp-scan/README.md`](mcp-scan/README.md) for the limits.
 
 ---
 
@@ -217,9 +218,10 @@ Secure-By-Design-Agentic/
 │   ├── rate_limiter.py                # Token-bucket rate limiter
 │   └── audit.py                       # Server-side audit logging
 │
-├── mcp-scan/                          # mcp-scan target descriptor
+├── mcp-scan/                          # MCP descriptor scan (folder name is historical)
 │   ├── README.md
-│   └── mcp_client_config.json         # Used by mcp-scan in CI
+│   ├── descriptor_scan.py             # Runs the pinned scanner; used by CI
+│   └── mcp_client_config.json         # Points the scanner at mcp_server.server
 │
 ├── docs/                              # Educational documentation
 │   ├── ARCHITECTURE.md                # Architecture decision log
@@ -229,7 +231,7 @@ Secure-By-Design-Agentic/
 │
 └── .github/
     └── workflows/
-        └── ci.yml                     # CI: lint + import smoke test + mcp-scan
+        └── ci.yml                     # CI: lint + import smoke test + MCP descriptor scan
 ```
 
 ---
@@ -241,7 +243,6 @@ Secure-By-Design-Agentic/
 | [Python 3.11+](https://python.org) | System or `pyenv` | Runtime |
 | [uv](https://docs.astral.sh/uv/) | `curl -LsSf https://astral.sh/uv/install.sh \| sh` | Dependency management |
 | [Ollama](https://ollama.com) | `curl -fsSL https://ollama.com/install.sh \| sh` | Local LLM inference |
-| [Node.js 18+](https://nodejs.org) | System package manager | `npx` for `mcp-scan` |
 
 ```bash
 # Start Ollama and pull the model
@@ -267,8 +268,11 @@ uv run python -m agent.agent
 # --- Run the secure MCP server standalone (for testing) ---
 uv run python -m mcp_server.server
 
-# --- Run mcp-scan against the MCP server ---
-npx -y mcp-scan@latest scan -c mcp-scan/mcp_client_config.json --json
+# --- Scan the MCP server's tool descriptions (same as CI; see mcp-scan/README.md) ---
+curl -fsSL -o /tmp/redteam_orchestrator.py \
+  https://raw.githubusercontent.com/josephManzambi/ai-redteam-orchestrator/e0c10c7162b124242503060dfa171ed5a8f9174f/redteam_orchestrator.py
+uv run python mcp-scan/descriptor_scan.py /tmp/redteam_orchestrator.py \
+  mcp-scan/mcp_client_config.json mcp_descriptor_scan.json
 ```
 
 ---
@@ -323,7 +327,8 @@ recommended way to validate the defenses.
 
 Three categories:
 
-1. **Static analysis** - `mcp-scan` against the secure server (passes in CI)
+1. **Static analysis** - the MCP descriptor scan against the secure server (passes in CI;
+   keyword checks on tool descriptions only)
 2. **Direct prompt injection** - verifying the Input Guard catches obvious attacks
 3. **Tool-layer attacks** - verifying the Tool Authorizer blocks unauthorized
    calls even when the LLM would comply

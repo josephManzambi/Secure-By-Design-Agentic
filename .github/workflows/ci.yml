@@ -4,7 +4,8 @@
 # CI runs:
 #   - Ruff (lint + bandit-style security checks via the S ruleset)
 #   - Module import smoke test (verifies the project can be loaded)
-#   - mcp-scan against the MCP server (static analysis, fast)
+#   - MCP descriptor scan: starts the server, reads its tool descriptions
+#     (scanner from ai-redteam-orchestrator v0.1.0, pinned by commit + sha256)
 # ==================================================================
 
 name: CI
@@ -59,9 +60,13 @@ jobs:
           # Server import without execution
           uv run python -c "from mcp_server.server import read_log, system_info, search_logs, health_check"
 
-  mcp-scan:
-    name: MCP static analysis (mcp-scan)
+  mcp-descriptor-scan:
+    name: MCP descriptor scan
     runs-on: ubuntu-latest
+    env:
+      # ai-redteam-orchestrator v0.1.0. Pinned by commit and file hash, never @latest.
+      RTO_COMMIT: e0c10c7162b124242503060dfa171ed5a8f9174f
+      RTO_SHA256: cb898dbb542e51823b3c9ac925077b02f827ead14fbf498e7dd5dfc1ce991ff8
     steps:
       - uses: actions/checkout@v4
 
@@ -71,27 +76,29 @@ jobs:
       - name: Set up Python
         run: uv python install 3.11
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Install dependencies
         run: uv sync
 
-      - name: Run mcp-scan against the secure MCP server
+      - name: Fetch the pinned descriptor scanner
         run: |
-          npx -y mcp-scan@latest scan \
-            -c mcp-scan/mcp_client_config.json \
-            --json | tee mcp_scan_results.json
-        # mcp-scan exits non-zero on findings — we don't fail CI on this
-        # because we want to inspect the output rather than gate on it.
-        continue-on-error: true
+          curl -fsSL -o "$RUNNER_TEMP/redteam_orchestrator.py" \
+            "https://raw.githubusercontent.com/josephManzambi/ai-redteam-orchestrator/${RTO_COMMIT}/redteam_orchestrator.py"
+          echo "${RTO_SHA256}  $RUNNER_TEMP/redteam_orchestrator.py" | sha256sum -c -
 
-      - name: Upload mcp-scan results
+      - name: Scan the secure MCP server's tool descriptions
+        # Fails on any CRITICAL or HIGH finding, or if the server does not
+        # start and list its tools. Heuristic keyword checks, not a proof.
+        run: |
+          uv run python mcp-scan/descriptor_scan.py \
+            "$RUNNER_TEMP/redteam_orchestrator.py" \
+            mcp-scan/mcp_client_config.json \
+            mcp_descriptor_scan.json
+
+      - name: Upload descriptor scan results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: mcp-scan-results
-          path: mcp_scan_results.json
+          name: mcp-descriptor-scan-results
+          path: mcp_descriptor_scan.json
           retention-days: 30
+          if-no-files-found: ignore

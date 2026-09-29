@@ -20,8 +20,8 @@ classifiers = [
 ]
 
 dependencies = [
-    # MCP Server
-    "mcp[cli]>=1.0.0",
+    # MCP Server. Below 2: mcp 2.x renamed FastMCP, and the server imports it.
+    "mcp[cli]>=1.0.0,<2",
     # Ollama SDK (thin client for local inference)
     "ollama>=0.4.0",
     # Logging & output
